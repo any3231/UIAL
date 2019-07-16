@@ -163,16 +163,21 @@ public class ServerThread extends Thread {
                     return;
                 }
                 List<UIAuto.TargetFromFile> fileActions = intentToTarget.get(res.intent);
+                if (res.intent.equals("music")) {
+                    //TODO: control music player
+                    
+                }
+                else {
+                    UIAuto.jumpToApp("com.tencent.mm");
 
-                UIAuto.jumpToApp("com.tencent.mm");
-
-                for (UIAuto.TargetFromFile oneAction: fileActions){
-                    if(oneAction.targetNodeToClickStr == null){
-                        stream.println("handleJumpToTargetPageState");
-                        handleJumpToTargetPageState(oneAction.pageIndex, oneAction.stateIndex, res.context, System.out);
-                    } else {
-                        stream.println("handleJumpByCmd");
-                        handleJumpByCmd(oneAction.pageIndex, oneAction.stateIndex, res.context, oneAction.targetNodeToClickStr, System.out);
+                    for (UIAuto.TargetFromFile oneAction : fileActions) {
+                        if (oneAction.targetNodeToClickStr == null) {
+                            stream.println("handleJumpToTargetPageState" + res.context);
+                            handleJumpToTargetPageState(oneAction.pageIndex, oneAction.stateIndex, res.context, System.out);
+                        } else {
+                            stream.println("handleJumpByCmd" + res.context);
+                            //handleJumpByCmd(oneAction.pageIndex, oneAction.stateIndex, res.context, oneAction.targetNodeToClickStr, System.out);
+                        }
                     }
                 }
 

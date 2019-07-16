@@ -564,10 +564,12 @@ public class UIAuto {
                         uiNodeToAct = uiNode;
                         inputContexts.remove(0);
                         isContextRemoved = true;
-                        break;
+                        System.out.println("context："+crtContextValue);
+                        return new Pair<>(null, false);
+                        //break;
                     }
                 }
-
+                //return new Pair<>(null, false);
                 if(!isContextRemoved && canTryScrollIfContextNotMatched){
                     // 如果可以滚动的话，对页面进行滚动
                     canTryScrollIfContextNotMatched = false;
