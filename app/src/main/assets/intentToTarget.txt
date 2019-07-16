@@ -1,0 +1,5 @@
+openQRScaner:13#0
+showQRCode:45#0
+voiceCall:1#0;139#0
+sendMessage:1#0;40#-1#发送
+sendPosition:1#0;161#0#发送位置
