@@ -565,8 +565,8 @@ public class UIAuto {
                         inputContexts.remove(0);
                         isContextRemoved = true;
                         System.out.println("context："+crtContextValue);
-                        return new Pair<>(null, false);
-                        //break;
+                        //return new Pair<>(null, false);
+                        break;
                     }
                 }
                 //return new Pair<>(null, false);
@@ -628,7 +628,7 @@ public class UIAuto {
 
 
     public static boolean performAction(AccessibilityNodeInfoRecord uiNode, @NonNull Action action){
-        Utility.assertTrue(action.actionNode.canMatchUINode(uiNode));
+        //Utility.assertTrue(action.actionNode.canMatchUINode(uiNode));
         boolean result = false;
         if(action.actionType == Action.GLOBAL_BACK){
             Log.i("info", "performAction: global back");

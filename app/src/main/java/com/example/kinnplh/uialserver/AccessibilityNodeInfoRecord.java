@@ -221,9 +221,7 @@ public class AccessibilityNodeInfoRecord {
         return nodeInfo.getText();
     }
 
-    public CharSequence getContentDescription(){
-        return nodeInfo.getContentDescription();
-    }
+    public CharSequence getContentDescription(){ return nodeInfo.getContentDescription(); }
 
     public boolean performAction(int action){
         return nodeInfo.performAction(action);
@@ -255,6 +253,20 @@ public class AccessibilityNodeInfoRecord {
 
         for(AccessibilityNodeInfoRecord child: children){
             res.addAll(child.findAccessibilityNodeInfosByText(str));
+        }
+
+        return res;
+    }
+
+    public List<AccessibilityNodeInfoRecord> findAccessibilityNodeInfosByContentdesc(String str){
+        List<AccessibilityNodeInfoRecord> res = new ArrayList<>();
+        String tmp = getContentDescription() == null? "": getContentDescription().toString();
+        if(Objects.equals(tmp, str)){
+            res.add(this);
+        }
+
+        for(AccessibilityNodeInfoRecord child: children){
+            res.addAll(child.findAccessibilityNodeInfosByContentdesc(str));
         }
 
         return res;

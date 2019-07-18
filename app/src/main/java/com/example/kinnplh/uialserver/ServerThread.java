@@ -1,7 +1,11 @@
 package com.example.kinnplh.uialserver;
 
+import android.content.Context;
+import android.content.Intent;
+import android.media.AudioManager;
 import android.util.Log;
 import android.util.Pair;
+import android.view.ContextMenu;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import org.json.JSONException;
@@ -151,6 +155,14 @@ public class ServerThread extends Thread {
         Thread th = new Thread(){
             @Override
             public void run() {
+                if (nl == "answer") {
+                    handleAnswerPhone();
+                    return;
+                }
+                if (nl == "hang on") {
+                    handleHangOnPhone();
+                    return;
+                }
                 Utility.LuisRes res = Utility.getLuisRes(nl);
                 if(res == null){
                     stream.println("invalid input " + nl);
@@ -159,13 +171,13 @@ public class ServerThread extends Thread {
                 Log.i("luis", "intent: " + res.intent);
                 stream.println("intent: " + res.intent);
                 if(!intentToTarget.containsKey(res.intent)){
-                    stream.println("not supported cmd");
+                    stream.println("not supported cmd!!!");
                     return;
                 }
                 List<UIAuto.TargetFromFile> fileActions = intentToTarget.get(res.intent);
                 if (res.intent.equals("music")) {
                     //TODO: control music player
-                    
+                    handleMusicControl();
                 }
                 else {
                     UIAuto.jumpToApp("com.tencent.mm");
@@ -176,7 +188,7 @@ public class ServerThread extends Thread {
                             handleJumpToTargetPageState(oneAction.pageIndex, oneAction.stateIndex, res.context, System.out);
                         } else {
                             stream.println("handleJumpByCmd" + res.context);
-                            //handleJumpByCmd(oneAction.pageIndex, oneAction.stateIndex, res.context, oneAction.targetNodeToClickStr, System.out);
+                            handleJumpByCmd(oneAction.pageIndex, oneAction.stateIndex, res.context, oneAction.targetNodeToClickStr, System.out);
                         }
                     }
                 }
@@ -424,6 +436,39 @@ public class ServerThread extends Thread {
             e.printStackTrace();
         }
 
+    }
+
+    void handleMusicControl() {
+        /*Context context = getActivity().getApplicationContext()
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager.isMusicActive()) {
+
+        }*/
+
+    }
+
+    void handleAnswerPhone() {
+        AccessibilityNodeInfoRecord.buildTree();
+        List<AccessibilityNodeInfoRecord> actionNodes = AccessibilityNodeInfoRecord.root.findAccessibilityNodeInfosByContentdesc("接听");
+        if (actionNodes.isEmpty()) {
+            System.out.println("NOT FOUND");
+        }
+        else {
+            for (AccessibilityNodeInfoRecord actionNode : actionNodes)
+                UIAuto.performAction(actionNode,new UIAuto.Action(null,UIAuto.Action.CLICK,null));
+        }
+    }
+
+    void handleHangOnPhone() {
+        AccessibilityNodeInfoRecord.buildTree();
+        List<AccessibilityNodeInfoRecord> actionNodes = AccessibilityNodeInfoRecord.root.findAccessibilityNodeInfosByContentdesc("挂断");
+        if (actionNodes.isEmpty()) {
+            System.out.println("NOT FOUND");
+        }
+        else {
+            for (AccessibilityNodeInfoRecord actionNode : actionNodes)
+                UIAuto.performAction(actionNode,new UIAuto.Action(null,UIAuto.Action.CLICK,null));
+        }
     }
 
 }

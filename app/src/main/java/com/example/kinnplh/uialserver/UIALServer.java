@@ -79,13 +79,13 @@ public class UIALServer extends AccessibilityService {
     @Override
     protected boolean onKeyEvent(KeyEvent event) {
         if (event.getAction() == KeyEvent.ACTION_UP && event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP) {
-            if(!isListening){
+            /*if(!isListening){
                 Toast.makeText(UIALServer.self, "开始录音", Toast.LENGTH_SHORT).show();
-            }
+            }*/
             new Thread() {
                 @Override
                 public void run() {
-                    if (!isListening) {
+                    /*if (!isListening) {
                         isListening = true;
                         VUIInstance.start();
                         Log.i("vui", "res: " + "start");
@@ -96,7 +96,32 @@ public class UIALServer extends AccessibilityService {
                         Log.i("vui", "res: " + nl);
                         Utility.vibrate(10);
                         thread.handleNLCMD(nl, System.out);
-                    }
+                    }*/
+                    String nl = "hang on";
+                    System.out.println("hang on the phone");
+                    thread.handleNLCMD(nl, System.out);
+                }
+            }.start();
+        }
+        else if (event.getAction() == KeyEvent.ACTION_UP && event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            new Thread() {
+                @Override
+                public void run() {
+                    /*if (!isListening) {
+                        isListening = true;
+                        VUIInstance.start();
+                        Log.i("vui", "res: " + "start");
+                        Utility.vibrate(100);
+                    } else {
+                        isListening = false;
+                        String nl = VUIInstance.stop();
+                        Log.i("vui", "res: " + nl);
+                        Utility.vibrate(10);
+                        thread.handleNLCMD(nl, System.out);
+                    }*/
+                    String nl = "answer";
+                    System.out.println("answer the phone");
+                    thread.handleNLCMD(nl, System.out);
 
                 }
             }.start();
