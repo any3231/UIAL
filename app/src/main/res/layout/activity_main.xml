@@ -79,8 +79,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
-            android:hint="输入指令"
-            android:inputType="textPersonName" />
+            android:hint="输入指令"/>
+           <!-- android:inputType="textPersonName" />-->
 
         <Button
             android:id="@+id/button"
@@ -89,5 +89,37 @@
             android:text="运行" />
 
     </LinearLayout>
+        <EditText
+            android:id="@+id/client_host_ip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="请输入ip地址" />
+
+        <EditText
+            android:id="@+id/client_port_ip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="请输入端口号"/>
+
+        <EditText
+            android:id="@+id/client_content_ip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="请输入要发给服务器的内容"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/client_conn"
+            android:text="建立链接"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/client_submit"
+            android:text="监听数据"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/client_disconn"
+            android:text="断开链接"/>
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
