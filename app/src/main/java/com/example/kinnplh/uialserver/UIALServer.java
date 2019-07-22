@@ -97,7 +97,7 @@ public class UIALServer extends AccessibilityService {
                         Utility.vibrate(10);
                         thread.handleNLCMD(nl, System.out);
                     }*/
-                    String nl = "hang on";
+                    String nl = "hangon";
                     System.out.println("hang on the phone");
                     thread.handleNLCMD(nl, System.out);
                 }

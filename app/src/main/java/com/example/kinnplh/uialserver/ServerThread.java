@@ -159,13 +159,23 @@ public class ServerThread extends Thread {
                     handleAnswerPhone();
                     return;
                 }
-                if (nl == "hang on") {
+                if (nl == "hangon") {
                     handleHangOnPhone();
                     return;
                 }
-                Utility.LuisRes res = Utility.getLuisRes(nl);
+                if (nl == "music") {
+                    return;
+                }
+                String nnl = "";
+                if (nl.startsWith("call")) {
+                    nnl = "给"+nl.substring(5)+"打电话";
+                }
+                if (nl.startsWith("send")) {
+                    nnl = "告诉";
+                }
+                Utility.LuisRes res = Utility.getLuisRes(nnl);
                 if(res == null){
-                    stream.println("invalid input " + nl);
+                    stream.println("invalid input " + nnl);
                     return;
                 }
                 Log.i("luis", "intent: " + res.intent);
