@@ -27,6 +27,13 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v7.app.AlertDialog;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     Button b;
@@ -51,6 +58,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static String[] PERMISSIONS_RECORD = {
             "android.permission.RECORD_AUDIO"
     };
+
+    private final int HANDLER_MSG_TELL_RECV = 0x124;
+    private EditText client_host_ip, client_port, client_content;
+    private Button client_submit;
+    private Button client_conn;
+    private Button client_disconn;
+
+    private Socket socket;
+
+    Handler handler = new Handler() {
+        public void handleMessage(Message msg) {
+            //设置一个弹框
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setMessage("python服务器的数据显示：" + msg.obj);
+            //创建弹框 并展示
+            builder.create().show();
+        }
+    };
+
+
     public static void verifyStoragePermissions(Activity activity) {
 
         try {
@@ -77,6 +104,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         self = this;
         setContentView(R.layout.activity_main);
+
+        initViews();
+        initEvent();
+
         verifyStoragePermissions(this);
         if (!hasPermission()){
             startActivityForResult(
@@ -223,6 +254,118 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         MY_PERMISSIONS_REQUEST_PACKAGE_USAGE_STATS);
             }
         }
+    }
+
+    private void initEvent() {
+        client_conn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final String host = client_host_ip.getText().toString();
+                final String port = client_port.getText().toString();
+                new Thread() {
+                    public void run() {
+                        try {
+                            socket = new Socket(host, Integer.parseInt(port));
+                            Message msg = handler.obtainMessage(HANDLER_MSG_TELL_RECV, "链接成功");
+                            msg.sendToTarget();
+                            while(true) {
+                                InputStream is = socket.getInputStream();
+                                byte[] bytes = new byte[1024];
+                                int n = is.read(bytes);
+                                String message = new String(bytes, 0, n);
+                                //editText.setText(message);
+
+                                if (UIALServer.self != null && UIALServer.self.getRootInActiveWindow() != null) {
+                                    // b.setText(String.valueOf(UIALServer.self.getRootInActiveWindow().getPackageName()));
+                                    //final String nl = editText.getText().toString();
+                                    final String nl = message;
+//                                    Message msgm = handler.obtainMessage(HANDLER_MSG_TELL_RECV, message);
+//                                    msgm.sendToTarget();
+                                    if(nl.length() == 0){
+                                        Message msgi = handler.obtainMessage(HANDLER_MSG_TELL_RECV, "请先输入指令");
+                                        msgi.sendToTarget();
+                                    } else {
+                                        Message msgs = handler.obtainMessage(HANDLER_MSG_TELL_RECV, "执行指令"+nl);
+                                        msgs.sendToTarget();
+                                        new Thread(){
+                                            @Override
+                                            public void run() {
+                                                UIALServer.self.thread.handleNLCMD(nl, System.out, aManager);
+                                            }
+                                        }.start();
+                                    }
+                                }
+                                else{
+
+                                    Message msgh = handler.obtainMessage(HANDLER_MSG_TELL_RECV, "请先在设置中打开无障碍服务");
+                                    msgh.sendToTarget();
+                                }
+                            }
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }.start();
+            }
+        });
+        client_submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new Thread() {
+                    public void run() {
+                        try {
+                            while(true) {
+                                InputStream is = socket.getInputStream();
+
+                                byte[] bytes = new byte[1024];
+                                //回应数据
+                                int n = is.read(bytes);
+                                String message = new String(bytes, 0, n);
+                                client_content.setText(message);
+                                if (UIALServer.self != null && UIALServer.self.getRootInActiveWindow() != null) {
+//                                   // b.setText(String.valueOf(UIALServer.self.getRootInActiveWindow().getPackageName()));
+//                                   //editText.setText("nihao");
+//                                   final String nl = editText.getText().toString();
+                                    final String nl = message;
+//                                   if(nl.length() == 0){
+//                                       Toast.makeText(MainActivity.self, "请先输入指令", Toast.LENGTH_SHORT).show();
+//                                   } else {
+                                    Toast.makeText(MainActivity.self, "请先在设置中打开无障碍服务", Toast.LENGTH_SHORT).show();
+//
+                                    new Thread(){
+                                        @Override
+                                        public void run() {
+                                            UIALServer.self.thread.handleNLCMD(nl, System.out);
+                                        }
+                                    }.start();
+                                    //}
+                                }
+//                               else{
+//                                Toast.makeText(MainActivity.self, "请先在设置中打开无障碍服务", Toast.LENGTH_SHORT).show();
+//                            }
+//                               Message msg = handler.obtainMessage(HANDLER_MSG_TELL_RECV, new String(bytes, 0, n));
+//                               msg.sendToTarget();
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }.start();
+            }
+        });
+    }
+    private void initViews() {
+        client_host_ip = findViewById(R.id.client_host_ip);
+        client_port = findViewById(R.id.client_port_ip);
+        client_content = findViewById(R.id.client_content_ip);
+        client_submit = findViewById(R.id.client_submit);
+        client_conn = findViewById(R.id.client_conn);
+        client_disconn = findViewById(R.id.client_disconn);
+
+        client_host_ip.setText("183.173.72.151");
+        client_port.setText("8000");
+
     }
 
 
