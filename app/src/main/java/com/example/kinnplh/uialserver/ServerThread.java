@@ -3,9 +3,11 @@ package com.example.kinnplh.uialserver;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.os.SystemClock;
 import android.util.Log;
 import android.util.Pair;
 import android.view.ContextMenu;
+import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import org.json.JSONException;
@@ -35,6 +37,7 @@ public class ServerThread extends Thread {
     Socket socket;
     BufferedReader reader;
     PrintStream writer;
+    boolean isPauseMusic = false;
     boolean threadRunning;
     public static Map<String, List<UIAuto.TargetFromFile>> intentToTarget;
 
@@ -151,22 +154,61 @@ public class ServerThread extends Thread {
 
     }
 
-    void handleNLCMD(final String nl, final PrintStream stream){
+    void handleNLCMD(final String nl, final PrintStream stream) {
+        AudioManager aManager = null;
+        handleNLCMD(nl, stream, aManager);
+    }
+
+    void handleNLCMD(final String nl, final PrintStream stream, final AudioManager aManager){
         Thread th = new Thread(){
             @Override
             public void run() {
-                if (nl == "answer") {
+                KeyEvent kevent;
+                long eventTime;
+                if (nl.equals("answer")) {
                     handleAnswerPhone();
                     return;
                 }
-                if (nl == "hangon") {
+                if (nl.equals("hangon")) {
                     handleHangOnPhone();
                     return;
                 }
-                if (nl == "music") {
+                System.out.println(nl+aManager.toString());
+                if (nl.equals("pause") && aManager!=null) {
+                    System.out.println("stop");
+                    if(aManager.isMusicActive()){
+                        aManager.requestAudioFocus(null, AudioManager.STREAM_MUSIC,
+                                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+                        isPauseMusic = true;
+                    }
                     return;
                 }
-                String nnl = "";
+                if (nl.equals("continue") && aManager!=null) {
+                    System.out.println("start");
+                    if (isPauseMusic) {
+                        aManager.abandonAudioFocus(null);
+                        isPauseMusic = false;
+                    }
+                    return;
+                }
+                if (nl.equals("previous") && aManager!=null) {
+                    System.out.println("previous");
+                    eventTime = SystemClock.uptimeMillis();
+                    kevent = new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PREVIOUS, 0);
+                    dispatchMediaKeyToAudioService(kevent, aManager);
+                    dispatchMediaKeyToAudioService(KeyEvent.changeAction(kevent, KeyEvent.ACTION_UP), aManager);
+                    return;
+                }
+
+                if (nl.equals("next") && aManager!=null) {
+                    System.out.println("next");
+                    eventTime = SystemClock.uptimeMillis();
+                    kevent = new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_NEXT, 0);
+                    dispatchMediaKeyToAudioService(kevent, aManager);
+                    dispatchMediaKeyToAudioService(KeyEvent.changeAction(kevent, KeyEvent.ACTION_UP), aManager);
+                    return;
+                }
+                String nnl = nl;
                 if (nl.startsWith("call")) {
                     nnl = "给"+nl.substring(5)+"打电话";
                 }
@@ -481,4 +523,9 @@ public class ServerThread extends Thread {
         }
     }
 
+
+    private void dispatchMediaKeyToAudioService(KeyEvent event, final AudioManager aManager) {
+        System.out.println("dispatchMediaKeyToAudioService");
+        aManager.dispatchMediaKeyEvent(event);
+    }
 }

@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         new Thread(){
                             @Override
                             public void run() {
-                                UIALServer.self.thread.handleNLCMD(nl, System.out);
+                                UIALServer.self.thread.handleNLCMD(nl, System.out, aManager);
                             }
                         }.start();
                     }

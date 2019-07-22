@@ -1,10 +1,12 @@
 package com.example.kinnplh.uialserver;
 
 import android.accessibilityservice.AccessibilityService;
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
+import android.media.AudioManager;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -30,13 +32,14 @@ public class UIALServer extends AccessibilityService {
     public static UIALServer self;
     Map<String, MergedApp> packageToMergedApp;
     ServerThread thread;
+    AudioManager aManager;
 
     @Override
     public void onCreate() {
         super.onCreate();
         self = this;
         packageToMergedApp = new HashMap<>();
-
+        aManager = (AudioManager) getSystemService(Service.AUDIO_SERVICE);
         VUIInstance.init(self);
         try {
             AssetManager manager = getAssets();
@@ -99,7 +102,7 @@ public class UIALServer extends AccessibilityService {
                     }*/
                     String nl = "hangon";
                     System.out.println("hang on the phone");
-                    thread.handleNLCMD(nl, System.out);
+                    thread.handleNLCMD(nl, System.out, aManager);
                 }
             }.start();
         }
@@ -121,7 +124,7 @@ public class UIALServer extends AccessibilityService {
                     }*/
                     String nl = "answer";
                     System.out.println("answer the phone");
-                    thread.handleNLCMD(nl, System.out);
+                    thread.handleNLCMD(nl, System.out, aManager);
 
                 }
             }.start();
